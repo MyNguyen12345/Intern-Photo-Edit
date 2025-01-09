@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="light_black">#1B000000</color>
+    <color name="tv_black">#000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="orange">#F44336</color>
+    <color name="light_orange">#689C2D0A</color>
+    <color name="gray">#68605956</color>
+    <color name="blue">#2196F3</color>
+    <color name="text_black">#222222</color>
+    <color name="text_gray">#888888</color>
+    <color name="red">#E91E63</color>
+    <color name="bc_button">#283FB1</color>
+    <color name="view_white">#F2F2F2</color>
+    <color name="bc_btn_gray">#AA9DBA</color>
+    <color name="start_color">#C870FF</color>
+    <color name="bc_color_1">#F34B1B</color>
+    <color name="bc_color_2">#283FB1</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="text_color">#FCF9F2</color>
+    <color name="bc_button_product">#F9D03F</color>
+    <color name="text_button_true">#121111</color>
+    <color name="text_button_false">#696969</color>
+    <color name="transparent">#00000000</color>
+    <color name="FCF9F2">#FCF9F2</color>
+    <color name="color_1F1F1F">#1F1F1F</color>
+    <color name="color_696969">#F2F6ECEC</color>
+
 </resources>

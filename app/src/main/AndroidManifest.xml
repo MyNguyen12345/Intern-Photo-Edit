@@ -2,6 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature android:name="android.hardware.camera.any" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,8 +23,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotoEdit"
         tools:targetApi="31">
+
         <activity
-            android:name=".MainActivity"
+            android:name=".iu.image.draw.DrawPhotoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PhotoEdit" />
+        <activity
+            android:name=".iu.image.EditPhotoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".iu.image.HomeEditImageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".iu.album.ImageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".iu.album.AlbumActivity"
+            android:exported="false" />
+        <activity
+            android:name=".iu.camera.TakePhotoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".iu.splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,6 +52,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".iu.main.MainActivity"
+            android:exported="true" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.photoedit.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_path" />
+        </provider>
     </application>
 
 </manifest>

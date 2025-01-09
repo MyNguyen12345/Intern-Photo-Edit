@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".iu.camera.TakePhotoActivity">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/preview_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gpuimage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.example.photoedit.iu.view.FocusCircleView
+        android:id="@+id/focusCircleView_zoom"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/preview_image"
+        app:layout_constraintEnd_toEndOf="@+id/preview_image"
+        app:layout_constraintStart_toStartOf="@+id/preview_image"
+        app:layout_constraintTop_toTopOf="@+id/preview_image" />
+
+    <FrameLayout
+        android:id="@+id/frame_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/container"
+        tools:ignore="UselessLeaf" />
+
+    <ImageButton
+        android:id="@+id/img_flash"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/dimen_5_dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_flash_off"
+        app:layout_constraintEnd_toStartOf="@id/img_flip"
+        app:layout_constraintStart_toEndOf="@id/img_ratio"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/img_flip"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:layout_marginTop="@dimen/dimen_5_dp"
+        android:layout_alignParentEnd="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_flip_camera"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/img_flash"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/img_ratio"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/dimen_5_dp"
+        android:background="@color/white"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_sixteen_nine"
+        app:layout_constraintEnd_toStartOf="@id/img_flash"
+        app:layout_constraintStart_toEndOf="@id/img_filter"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/img_filter"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/dimen_5_dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_filter"
+        app:layout_constraintEnd_toStartOf="@id/img_ratio"
+        app:layout_constraintStart_toEndOf="@id/img_home"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/img_home"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/dimen_5_dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_home"
+        app:layout_constraintEnd_toStartOf="@id/img_filter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_120_dp"
+        android:background="@color/light_black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/img_photo"
+            android:layout_width="@dimen/dimen_60_dp"
+            android:layout_height="@dimen/dimen_60_dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/dimen_5_dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_photo"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:tint="@color/white" />
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_image"
+            android:layout_width="@dimen/dimen_60_dp"
+            android:layout_height="@dimen/dimen_60_dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
+            app:cardCornerRadius="@dimen/dimen_10_dp"
+            app:cardElevation="4dp"
+            android:layout_margin="@dimen/dimen_5_dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/img_photo">
+
+            <ImageView
+                android:id="@+id/imgView_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop" />
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,15 +5,63 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:background="@color/color_696969"
+    tools:context=".iu.main.MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:gravity="center"
+        android:text="@string/photo_edit"
+        android:textColor="@color/bc_color_2"
+        android:textSize="@dimen/dimen_25_sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btn_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_edit_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_album"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="@string/photo_edit"
+        android:textSize="@dimen/dimen_18_sp"
+        android:textStyle="italic"
+        app:layout_constraintTop_toBottomOf="@id/btn_edit"
+        app:layout_constraintStart_toStartOf="@id/btn_edit"
+        app:layout_constraintEnd_toEndOf="@id/btn_edit"/>
+
+    <ImageButton
+        android:id="@+id/btn_album"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_album"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_edit"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/album"
+        android:textSize="@dimen/dimen_18_sp"
+        android:textStyle="italic"
+        app:layout_constraintTop_toBottomOf="@id/btn_album"
+        app:layout_constraintStart_toStartOf="@id/btn_album"
+        app:layout_constraintEnd_toEndOf="@id/btn_album"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

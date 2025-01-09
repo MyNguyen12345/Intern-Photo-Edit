@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".iu.image.HomeEditImageActivity">
+
+    <ImageView
+        android:id="@+id/imgView_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_back_edit"
+        android:layout_marginBottom="@dimen/dimen_5_dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_filter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/btn_filter"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_filter"
+        android:layout_marginBottom="@dimen/dimen_5_dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_save"
+        app:layout_constraintStart_toEndOf="@id/btn_back"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/btn_save"
+        android:layout_width="@dimen/dimen_40_dp"
+        android:layout_height="@dimen/dimen_40_dp"
+        android:background="@drawable/bc_button"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_save"
+        android:layout_marginBottom="@dimen/dimen_5_dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_edit"
+        app:layout_constraintStart_toEndOf="@id/btn_filter"
+        app:tint="@color/bc_color_2" />
+
+    <ImageButton
+        android:id="@+id/btn_edit"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:contentDescription="@null"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_edit"
+        android:layout_marginBottom="@dimen/dimen_5_dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_share"
+        app:layout_constraintStart_toEndOf="@id/btn_save"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/btn_share"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:layout_marginBottom="@dimen/dimen_5_dp"
+        android:src="@drawable/ic_share"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_edit"
+        app:tint="@color/white" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
