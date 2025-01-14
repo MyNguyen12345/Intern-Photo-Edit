@@ -44,16 +44,16 @@ class HomeEditImageActivity : AppCompatActivity() {
             .into(binding.imgViewImage)
 
         binding.btnBack.setOnClickListener {
-            imagePath?.let {
-                val isDeleted = deleteImageFromInternalStorage(it)
-                if (isDeleted) {
-                    Toast.makeText(this, "File deleted successfully", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Failed to delete file or file does not exist", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            finish()
+//            imagePath?.let {
+//                val isDeleted = deleteImageFromInternalStorage(it)
+//                if (isDeleted) {
+//                    Toast.makeText(this, "File deleted successfully", Toast.LENGTH_SHORT).show()
+//                } else {
+//                    Toast.makeText(this, "Failed to delete file or file does not exist", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//
+//            finish()
         }
 
         binding.btnShare.setOnClickListener {

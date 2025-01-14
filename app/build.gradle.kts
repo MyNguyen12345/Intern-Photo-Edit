@@ -70,18 +70,19 @@ dependencies {
     implementation ("androidx.viewpager2:viewpager2:1.0.0")
 
 
-    implementation("com.github.krokyze:ucropnedit:2.2.6-2")
     implementation("io.reactivex.rxjava3:rxjava:3.1.10")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
 
     implementation ("jp.co.cyberagent.android:gpuimage:2.1.0")
 
-    implementation ("com.isseiaoki:simplecropview:1.1.8")
+
+    implementation ("com.github.yalantis:ucrop:2.2.10")
 
 
 
     implementation("com.github.LottieFiles:dotlottie-android:0.5.0")
     implementation("com.airbnb.android:lottie:6.1.0")
+    implementation ("com.github.Dhaval2404:ColorPicker:2.3")
 
 
 

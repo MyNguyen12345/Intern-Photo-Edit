@@ -56,6 +56,11 @@
             android:name=".iu.main.MainActivity"
             android:exported="true" />
 
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.photoedit.provider"
