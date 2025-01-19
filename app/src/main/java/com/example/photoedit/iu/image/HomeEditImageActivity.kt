@@ -1,70 +1,117 @@
 package com.example.photoedit.iu.image
 
-import android.content.ContentValues
 import android.content.Intent
-import android.net.Uri
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
+import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.annotation.MainThread
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.photoedit.R
+import com.example.photoedit.adapter.FilterSelectionAdapter
 import com.example.photoedit.constants.Constants
 import com.example.photoedit.databinding.ActivityHomeEditImageBinding
-import com.example.photoedit.utils.intentActivity
+import com.example.photoedit.utils.dialogFinished
+import com.example.photoedit.utils.fixBitmapOrientation
+import com.example.photoedit.utils.saveImageToGallery
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import jp.co.cyberagent.android.gpuimage.GPUImage
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageBrightnessFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageColorInvertFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageContrastFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageGaussianBlurFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageSaturationFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageSepiaToneFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageVignetteFilter
 import java.io.File
-import java.io.FileInputStream
 
 class HomeEditImageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeEditImageBinding
     private var imagePath: String? = null
     private var subscription: CompositeDisposable = CompositeDisposable()
+    private val filterNames = listOf(
+        "Original",
+        "Sepia",
+        "Contrast",
+        "GrayScale",
+        "GaussianBlur",
+        "Brightness",
+        "Saturation",
+        "Invert",
+        "Vignette"
+    )
+    private var bitmap: Bitmap? = null
+    private lateinit var gpuImage: GPUImage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeEditImageBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        gpuImage = GPUImage(this)
 
         imagePath = intent.getStringExtra(Constants.KEY_IMAGE_PATH)
-
 
         Glide.with(this)
             .load(imagePath)
             .into(binding.imgViewImage)
 
         binding.btnBack.setOnClickListener {
-//            imagePath?.let {
-//                val isDeleted = deleteImageFromInternalStorage(it)
-//                if (isDeleted) {
-//                    Toast.makeText(this, "File deleted successfully", Toast.LENGTH_SHORT).show()
-//                } else {
-//                    Toast.makeText(this, "Failed to delete file or file does not exist", Toast.LENGTH_SHORT).show()
-//                }
-//            }
-//
-//            finish()
+            dialogFinished(getString(R.string.cancel_dialog), this, imagePath) { finish() }
         }
 
+        onBackPressedDispatcher.addCallback {
+            binding.btnBack.performClick()
+        }
         binding.btnShare.setOnClickListener {
+            binding.recyclerFilter.visibility = View.INVISIBLE
+
             shareImage()
 
         }
 
+        binding.btnFilter.setOnClickListener {
+            binding.recyclerFilter.visibility = View.VISIBLE
+            val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.beautiful)
+
+            val adapter = FilterSelectionAdapter(originalBitmap, filterNames) { filter ->
+                applyFilter(filter)
+            }
+            binding.recyclerFilter.adapter = adapter
+
+
+        }
+
         binding.btnSave.setOnClickListener {
+            binding.recyclerFilter.visibility = View.INVISIBLE
+
+            val saveBitmap = if (bitmap == null) {
+                val mainBitmap = BitmapFactory.decodeFile(imagePath)
+                val rotatedBitmap = imagePath?.let { fixBitmapOrientation(mainBitmap, it) }
+
+                val newBitmap = rotatedBitmap?.let {
+                    Bitmap.createBitmap(
+                        it.width,
+                        rotatedBitmap.height,
+                        rotatedBitmap.config
+                    )
+                }
+                val canvas = newBitmap?.let { Canvas(it) }
+                rotatedBitmap?.let {
+                    canvas?.drawBitmap(it, 0f, 0f, null)
+                    rotatedBitmap
+                }
+            } else {
+                bitmap
+            }
 
             subscription.add(
-                saveImageToGallery().subscribeOn(Schedulers.io())
+                saveImageToGallery(this, saveBitmap!!).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
                         Toast.makeText(this, "save image $it", Toast.LENGTH_SHORT).show()
@@ -79,12 +126,13 @@ class HomeEditImageActivity : AppCompatActivity() {
         }
 
         binding.btnEdit.setOnClickListener {
-            imagePath?.let { it1 ->
-                intentActivity(
-                    this, EditPhotoActivity::class.java, Constants.KEY_IMAGE_PATH,
-                    it1
-                )
-            }
+            binding.recyclerFilter.visibility = View.INVISIBLE
+            val intent =
+                Intent(this, EditPhotoActivity::class.java).apply {
+                    putExtra(Constants.KEY_IMAGE_PATH, imagePath)
+
+                }
+            startActivity(intent)
         }
 
     }
@@ -107,49 +155,51 @@ class HomeEditImageActivity : AppCompatActivity() {
             startActivity(Intent.createChooser(shareIntent, "Share image via"))
         }
     }
-    private fun deleteImageFromInternalStorage(imagePath: String): Boolean {
-        val file = File(imagePath)
-        return if (file.exists()) {
-            file.delete()
+
+
+    private fun applyFilter(filterName: String) {
+        val filter = when (filterName) {
+            "Original" -> null
+            "Sepia" -> GPUImageSepiaToneFilter()
+            "Contrast" -> GPUImageContrastFilter(2.0f)
+            "GrayScale" -> GPUImageGrayscaleFilter()
+            "GaussianBlur" -> GPUImageGaussianBlurFilter()
+            "Brightness" -> GPUImageBrightnessFilter(0.5f)
+            "Saturation" -> GPUImageSaturationFilter(2.0f)
+            "Invert" -> GPUImageColorInvertFilter()
+            "Vignette" -> GPUImageVignetteFilter()
+            else -> null
+        }
+        val mainBitmap = BitmapFactory.decodeFile(imagePath)
+        val rotatedBitmap = imagePath?.let { fixBitmapOrientation(mainBitmap, it) }
+
+        val newBitmap = rotatedBitmap?.let {
+            Bitmap.createBitmap(
+                it.width,
+                rotatedBitmap.height,
+                rotatedBitmap.config
+            )
+        }
+
+        val canvas = newBitmap?.let { Canvas(it) }
+        rotatedBitmap?.let { canvas?.drawBitmap(it, 0f, 0f, null) }
+
+        gpuImage.setImage(rotatedBitmap)
+
+        if (filter != null) {
+            gpuImage.setFilter(filter)
+            val filteredBitmap = gpuImage.bitmapWithFilterApplied
+            bitmap = filteredBitmap
+            binding.imgViewImage.setImageBitmap(filteredBitmap)
         } else {
-            false
+            bitmap = null
+            binding.imgViewImage.setImageBitmap(newBitmap)
         }
-    }
-
-
-    private fun saveImageToGallery(): Single<Uri> {
-        return Single.create {
-            imagePath?.let { path ->
-                val file = File(path)
-                val fileName = file.name
-
-                val values = ContentValues().apply {
-                    put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                    put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                    put(
-                        MediaStore.Images.Media.RELATIVE_PATH, "Pictures/images"
-                    )
-                }
-
-                val resolver = contentResolver
-                val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-
-                uri?.let { it1 ->
-                    resolver.openOutputStream(it1).use { outputStream ->
-                        FileInputStream(file).use { inputStream ->
-                            inputStream.copyTo(outputStream!!)
-                        }
-                    }
-                    it.onSuccess(it1)
-
-                } ?: run {
-                    it.onError(IllegalAccessError())
-                }
-            }
-        }
-
 
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        subscription.clear()
+    }
 }

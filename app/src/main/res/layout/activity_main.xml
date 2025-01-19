@@ -37,9 +37,9 @@
         android:text="@string/photo_edit"
         android:textSize="@dimen/dimen_18_sp"
         android:textStyle="italic"
-        app:layout_constraintTop_toBottomOf="@id/btn_edit"
+        app:layout_constraintEnd_toEndOf="@id/btn_edit"
         app:layout_constraintStart_toStartOf="@id/btn_edit"
-        app:layout_constraintEnd_toEndOf="@id/btn_edit"/>
+        app:layout_constraintTop_toBottomOf="@id/btn_edit" />
 
     <ImageButton
         android:id="@+id/btn_album"
@@ -59,9 +59,9 @@
         android:text="@string/album"
         android:textSize="@dimen/dimen_18_sp"
         android:textStyle="italic"
-        app:layout_constraintTop_toBottomOf="@id/btn_album"
+        app:layout_constraintEnd_toEndOf="@id/btn_album"
         app:layout_constraintStart_toStartOf="@id/btn_album"
-        app:layout_constraintEnd_toEndOf="@id/btn_album"/>
+        app:layout_constraintTop_toBottomOf="@id/btn_album" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

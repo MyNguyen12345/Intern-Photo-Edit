@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.opengl.GLSurfaceView
+    <jp.co.cyberagent.android.gpuimage.GPUImageView
         android:id="@+id/gpuimage"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -35,10 +35,13 @@
         app:layout_constraintStart_toStartOf="@+id/preview_image"
         app:layout_constraintTop_toTopOf="@+id/preview_image" />
 
-    <FrameLayout
-        android:id="@+id/frame_container"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/container"
         tools:ignore="UselessLeaf" />
 
@@ -53,7 +56,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/ic_flash_off"
         app:layout_constraintEnd_toStartOf="@id/img_flip"
-        app:layout_constraintStart_toEndOf="@id/img_ratio"
+        app:layout_constraintStart_toEndOf="@id/img_filter"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
 
@@ -61,8 +64,8 @@
         android:id="@+id/img_flip"
         android:layout_width="@dimen/dimen_30_dp"
         android:layout_height="@dimen/dimen_30_dp"
-        android:layout_marginTop="@dimen/dimen_5_dp"
         android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/dimen_5_dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
@@ -72,18 +75,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
 
-    <ImageButton
-        android:id="@+id/img_ratio"
-        android:layout_width="@dimen/dimen_30_dp"
-        android:layout_height="@dimen/dimen_30_dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="@dimen/dimen_5_dp"
-        android:background="@color/white"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_sixteen_nine"
-        app:layout_constraintEnd_toStartOf="@id/img_flash"
-        app:layout_constraintStart_toEndOf="@id/img_filter"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/img_filter"
@@ -95,7 +86,7 @@
         android:contentDescription="@null"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_filter"
-        app:layout_constraintEnd_toStartOf="@id/img_ratio"
+        app:layout_constraintEnd_toStartOf="@id/img_flash"
         app:layout_constraintStart_toEndOf="@id/img_home"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
@@ -135,9 +126,9 @@
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_photo"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white" />
 
 
@@ -145,14 +136,14 @@
             android:id="@+id/card_image"
             android:layout_width="@dimen/dimen_60_dp"
             android:layout_height="@dimen/dimen_60_dp"
+            android:layout_margin="@dimen/dimen_5_dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@null"
             app:cardCornerRadius="@dimen/dimen_10_dp"
             app:cardElevation="4dp"
-            android:layout_margin="@dimen/dimen_5_dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/img_photo">
+            app:layout_constraintStart_toEndOf="@+id/img_photo"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/imgView_image"

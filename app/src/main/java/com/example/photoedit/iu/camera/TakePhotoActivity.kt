@@ -1,30 +1,16 @@
 package com.example.photoedit.iu.camera
 
-import android.content.ContentValues
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.ImageFormat
-import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.RectF
-import android.graphics.SurfaceTexture
-import android.graphics.YuvImage
-import android.graphics.drawable.BitmapDrawable
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
 import android.view.MotionEvent
 import android.view.OrientationEventListener
 import android.view.ScaleGestureDetector
 import android.view.Surface
-import android.view.TextureView
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
@@ -35,38 +21,34 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.signature.ObjectKey
 import com.example.photoedit.R
+import com.example.photoedit.adapter.FilterSelectionAdapter
 import com.example.photoedit.constants.Constants
 import com.example.photoedit.databinding.ActivityTakePhotoBinding
 import com.example.photoedit.iu.album.AlbumActivity
-import com.example.photoedit.iu.camera.filter.FilterPhotoFragment
+import com.example.photoedit.iu.album.AlbumViewModel
 import com.example.photoedit.iu.image.HomeEditImageActivity
-import com.example.photoedit.model.Filter
 import com.example.photoedit.utils.SharedPreferencesUtils
+import com.example.photoedit.utils.deleteImageFromInternalStorage
 import com.example.photoedit.utils.intentActivity
-import jp.co.cyberagent.android.gpuimage.GPUImage
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageBrightnessFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageColorInvertFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageContrastFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageGaussianBlurFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageSaturationFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageSepiaToneFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageVignetteFilter
-import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -80,12 +62,23 @@ class TakePhotoActivity : AppCompatActivity() {
     private var orientationEventListener: OrientationEventListener? = null
     private var lensFacing = CameraSelector.LENS_FACING_BACK
     private var aspectRatio = AspectRatio.RATIO_16_9
-    private lateinit var gpuImage: GPUImage
+    private lateinit var imagePathSave: String
 
 
     private lateinit var binding: ActivityTakePhotoBinding
-    private  lateinit var  surface  : Surface
+    private val filterNames = listOf(
+        "Original",
+        "Sepia",
+        "Contrast",
+        "GrayScale",
+        "GaussianBlur",
+        "Brightness",
+        "Saturation",
+        "Invert",
+        "Vignette"
+    )
 
+    private var filter: GPUImageFilter? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,14 +88,12 @@ class TakePhotoActivity : AppCompatActivity() {
         val sharedPreferencesUtils = SharedPreferencesUtils(this)
 
         if (sharedPreferencesUtils.isBoolean(Constants.KEY_CHECK_PERMISSION)) {
-            gpuImage = GPUImage(this)
-//            gpuImage.setGLSurfaceView(binding.gpuimage)
             startCamera()
+
 
         } else {
             Toast.makeText(this, "Check permission ", Toast.LENGTH_SHORT).show()
         }
-        setAspectRatio("H,9:16")
 
 
         binding.imgFlip.setOnClickListener {
@@ -114,19 +105,7 @@ class TakePhotoActivity : AppCompatActivity() {
             bindCameraUserCases()
         }
 
-        binding.imgRatio.setOnClickListener {
-            if (aspectRatio == AspectRatio.RATIO_16_9) {
-                aspectRatio = AspectRatio.RATIO_4_3
-                setAspectRatio("H,3:4")
-                binding.imgRatio.setImageResource(R.drawable.ic_four_three)
-            } else {
-                aspectRatio = AspectRatio.RATIO_16_9
-                setAspectRatio("H,9:16")
-                binding.imgRatio.setImageResource(R.drawable.ic_sixteen_nine)
 
-            }
-            bindCameraUserCases()
-        }
 
         binding.imgPhoto.setOnClickListener {
             takePhoto()
@@ -147,21 +126,23 @@ class TakePhotoActivity : AppCompatActivity() {
         }
 
         binding.imgFilter.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .add(binding.frameContainer.id,FilterPhotoFragment())
-                .commit()
+            binding.recyclerFilter.visibility = View.VISIBLE
+            val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.beautiful)
 
-        }
-
-    }
-
-    private fun setAspectRatio(ratio: String) {
-        binding.previewImage.layoutParams = binding.previewImage.layoutParams.apply {
-            if (this is ConstraintLayout.LayoutParams) {
-                dimensionRatio = ratio
+            val adapter = FilterSelectionAdapter(originalBitmap, filterNames) { filter ->
+                applyFilter(filter)
             }
+            binding.recyclerFilter.adapter = adapter
+
+
         }
+        binding.cardImage.setOnClickListener {
+            intentActivity(this, AlbumActivity::class.java)
+        }
+
+
     }
+
 
     private fun setFlashIcon(camera: Camera) {
 
@@ -205,23 +186,47 @@ class TakePhotoActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val intent = Intent(this@TakePhotoActivity, HomeEditImageActivity::class.java).apply {
-                        putExtra(Constants.KEY_IMAGE_PATH, imageFile.absolutePath)
 
+                    if (filter != null) {
+
+                        val filterName =
+                            SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
+                                .format(System.currentTimeMillis()) + ".jpg"
+                        val filteredImageFile = File(imageFolder, filterName)
+
+                        try {
+                            val filteredBitmap = binding.gpuimage.capture()
+                            filteredBitmap?.let {
+                                FileOutputStream(filteredImageFile).use { outputStream ->
+                                    it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                                }
+                            }
+                            imagePathSave = filteredImageFile.absolutePath
+                            deleteImageFromInternalStorage(imageFile.absolutePath)
+                            filter = null
+
+                            Toast.makeText(
+                                this@TakePhotoActivity,
+                                "Filtered image saved: ${filteredImageFile.absolutePath}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Toast.makeText(
+                                this@TakePhotoActivity,
+                                "Error saving filtered image: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    } else {
+                        imagePathSave = imageFile.absolutePath
                     }
+                    val intent =
+                        Intent(this@TakePhotoActivity, HomeEditImageActivity::class.java).apply {
+                            putExtra(Constants.KEY_IMAGE_PATH, imagePathSave)
+
+                        }
                     startActivity(intent)
-//                    Glide.with(this@TakePhotoActivity)
-//                        .load(imageFile)
-//                        .centerCrop()
-//                        .signature(ObjectKey(System.currentTimeMillis()))
-//                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                        .into(binding.imgViewImage)
-//
-//                    Toast.makeText(
-//                        this@TakePhotoActivity,
-//                        "Image saved temporarily: ${imageFile.absolutePath}",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
                 }
 
                 override fun onError(exception: ImageCaptureException) {
@@ -234,7 +239,6 @@ class TakePhotoActivity : AppCompatActivity() {
             }
         )
     }
-
 
 
     private fun startCamera() {
@@ -263,19 +267,36 @@ class TakePhotoActivity : AppCompatActivity() {
             .setTargetRotation(rotation)
             .build()
             .also {
-                it.surfaceProvider = binding.previewImage.surfaceProvider
+
+                it.surfaceProvider =
+                    if (filter != null) null else binding.previewImage.surfaceProvider
             }
-
-
 
         val imageAnalyzer = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .setResolutionSelector(resolutionSelector)
             .build()
             .also {
                 it.setAnalyzer(ContextCompat.getMainExecutor(this)) { imageProxy ->
-                    processImage(imageProxy)
+                    val bitmap = imageProxy.toBitmap()
+                    val rotatedBitmap = bitmap.rotateImage(imageProxy.imageInfo.rotationDegrees)
+
+                    if (filter != null) {
+                        binding.gpuimage.visibility = View.VISIBLE
+                        binding.previewImage.visibility = View.INVISIBLE
+                        binding.gpuimage.setImage(rotatedBitmap)
+                        binding.gpuimage.filter = filter
+
+                    } else {
+                        binding.gpuimage.visibility = View.INVISIBLE
+                        binding.previewImage.visibility = View.VISIBLE
+                    }
+                    imageProxy.close()
                 }
+
             }
+
+        imageAnalyzer.targetRotation = rotation
 
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
@@ -289,7 +310,6 @@ class TakePhotoActivity : AppCompatActivity() {
 
         orientationEventListener = object : OrientationEventListener(this) {
             override fun onOrientationChanged(orientation: Int) {
-                // Monitors orientation values to determine the target rotation value
                 imageCapture.targetRotation = when (orientation) {
                     in 45..134 -> Surface.ROTATION_270
                     in 135..224 -> Surface.ROTATION_180
@@ -301,7 +321,6 @@ class TakePhotoActivity : AppCompatActivity() {
         orientationEventListener?.enable()
         try {
             cameraProvider.unbindAll()
-
             camera = cameraProvider.bindToLifecycle(
                 this, cameraSelector, preview, imageAnalyzer, imageCapture
             )
@@ -310,25 +329,16 @@ class TakePhotoActivity : AppCompatActivity() {
             e.printStackTrace()
         }
     }
-    private fun processImage(imageProxy: ImageProxy) {
-        val bitmap = yuv420ToBitmap(imageProxy) // Chuyển đổi từ YUV sang Bitmap
-        if (bitmap != null) {
-            val convertedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
 
-            // Áp dụng bộ lọc bằng GPUImage
-//            gpuImage.setImage(convertedBitmap)
-//            gpuImage.setFilter(GPUImageBrightnessFilter(0.5f)) // Áp dụng bộ lọc
-//            gpuImage.requestRender()
-//            val filteredBitmap = gpuImage.bitmapWithFilterApplied
 
-//            // Vẽ Bitmap lên TextureView
-//            val canvas = binding.previewImage.lockCanvas()
-//            canvas?.drawBitmap(bitmap, null, Rect(0, 0, canvas.width, canvas.height), null)
-//            canvas?.let { binding.previewImage.unlockCanvasAndPost(it) }
-        }
-        imageProxy.close()
+    private fun Bitmap.rotateImage(rotationDegrees: Int): Bitmap {
+        val matrix = android.graphics.Matrix()
+        matrix.postRotate(rotationDegrees.toFloat())
+        return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
+
+    @SuppressLint("ClickableViewAccessibility")
     private fun setUpZoomTapToFocus() {
         val listener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector): Boolean {
@@ -364,33 +374,35 @@ class TakePhotoActivity : AppCompatActivity() {
             }
             true
         }
-    }
 
-    private fun yuv420ToBitmap(imageProxy: ImageProxy): Bitmap? {
-        if (imageProxy.format != ImageFormat.YUV_420_888) {
-            Log.e("TAG", "Invalid image format")
-            return null
+
+        binding.gpuimage.setOnTouchListener { view, event ->
+            scaleGestureDetector.onTouchEvent(event)
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                val factory = binding.previewImage.meteringPointFactory
+                val point = factory.createPoint(event.x, event.y)
+                val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF)
+                    .setAutoCancelDuration(2, TimeUnit.SECONDS)
+                    .build()
+
+                val x = event.x
+                val y = event.y
+
+                val focusCircle = RectF(x - 60, y - 60, x + 60, y + 60)
+
+                binding.focusCircleViewZoom.focusCircle = focusCircle
+                binding.focusCircleViewZoom.invalidate()
+
+                camera.cameraControl.startFocusAndMetering(action)
+
+                view.performClick()
+            }
+            true
         }
-
-        val buffer = imageProxy.planes[0].buffer
-        val bytes = ByteArray(buffer.remaining())
-        buffer.get(bytes)
-
-        val yuvImage = YuvImage(
-            bytes,
-            ImageFormat.NV21,
-            imageProxy.width,
-            imageProxy.height,
-            null
-        )
-        val outStream = ByteArrayOutputStream()
-        val rect = Rect(0, 0, imageProxy.width, imageProxy.height)
-        yuvImage.compressToJpeg(rect, 100, outStream)
-        val imageBytes = outStream.toByteArray()
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
-     fun applyFilter(filterName: String) {
-        val filter = when (filterName) {
+
+    fun applyFilter(filterName: String) {
+        filter = when (filterName) {
             "Original" -> null
             "Sepia" -> GPUImageSepiaToneFilter()
             "Contrast" -> GPUImageContrastFilter(2.0f)
@@ -402,20 +414,26 @@ class TakePhotoActivity : AppCompatActivity() {
             "Vignette" -> GPUImageVignetteFilter()
             else -> null
         }
-         Log.d("TAG", "applyFilter: "+filter)
-         if (filter != null) {
-//             gpuImage.setFilter(filter)
-//             gpuImage.requestRender()
-             Log.d("TAG", "applyFilter: "+gpuImage)
-         }
-
     }
 
     override fun onResume() {
         super.onResume()
         orientationEventListener?.enable()
+        observer()
 
 
+    }
+
+    private fun observer() {
+        getViewModel().getData().observe(this) { list ->
+            if (list.isNotEmpty()) {
+                Glide.with(this)
+                    .load(list[0])
+                    .into(binding.imgViewImage)
+            }
+
+        }
+        getViewModel().handlerLoadData()
     }
 
     override fun onPause() {
@@ -423,4 +441,7 @@ class TakePhotoActivity : AppCompatActivity() {
         orientationEventListener?.disable()
 
     }
+
+
+    private fun getViewModel(): AlbumViewModel = ViewModelProvider(this)[AlbumViewModel::class.java]
 }

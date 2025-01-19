@@ -24,8 +24,8 @@
         android:contentDescription="@null"
         android:src="@drawable/ic_style_text"
         app:layout_constraintBottom_toBottomOf="@id/btn_background"
-        app:layout_constraintTop_toTopOf="@id/btn_background"
-        app:layout_constraintEnd_toStartOf="@id/btn_background"/>
+        app:layout_constraintEnd_toStartOf="@id/btn_background"
+        app:layout_constraintTop_toTopOf="@id/btn_background" />
 
     <ImageButton
         android:id="@+id/btn_background"

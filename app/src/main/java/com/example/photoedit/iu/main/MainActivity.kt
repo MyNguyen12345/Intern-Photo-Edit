@@ -4,16 +4,19 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.photoedit.R
 import com.example.photoedit.constants.Constants
 import com.example.photoedit.databinding.ActivityMainBinding
 import com.example.photoedit.iu.album.AlbumActivity
 import com.example.photoedit.iu.camera.TakePhotoActivity
 import com.example.photoedit.utils.SharedPreferencesUtils
 import com.example.photoedit.utils.appSettingOpen
+import com.example.photoedit.utils.dialogFinished
 import com.example.photoedit.utils.intentActivity
 import com.example.photoedit.utils.warningPermissionDialog
 
@@ -23,7 +26,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var permissionsRequestLauncher: ActivityResultLauncher<Array<String>>
     private val multiplePermissionNameList = if (Build.VERSION.SDK_INT >= 33) {
         arrayOf(
-            android.Manifest.permission.CAMERA
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.READ_MEDIA_IMAGES
         )
     } else {
         arrayOf(
@@ -37,19 +41,31 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        sharedPreferencesUtils  = SharedPreferencesUtils(this)
+        sharedPreferencesUtils = SharedPreferencesUtils(this)
         setContentView(binding.root)
         checkPermission()
         checkMultiplePermission()
 
         binding.btnEdit.setOnClickListener {
-            intentActivity(this,TakePhotoActivity::class.java)
+            intentActivity(this, TakePhotoActivity::class.java)
         }
 
         binding.btnAlbum.setOnClickListener {
+
             intentActivity(this, AlbumActivity::class.java)
         }
 
+
+
+        onBackPressedDispatcher.addCallback {
+            dialogFinished(
+                getString(R.string.cancel_app_dialog),
+                this@MainActivity,
+                null
+            ) { finish() }
+
+
+        }
     }
 
     private fun checkPermission() {
@@ -59,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             val granted = permissions.values.all { it }
 
             if (granted) {
-                sharedPreferencesUtils.saveBoolean(Constants.KEY_CHECK_PERMISSION,true)
+                sharedPreferencesUtils.saveBoolean(Constants.KEY_CHECK_PERMISSION, true)
                 return@registerForActivityResult
             }
 
@@ -82,7 +98,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
     }
 
 
@@ -92,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (granted) {
-            sharedPreferencesUtils.saveBoolean(Constants.KEY_CHECK_PERMISSION,true)
+            sharedPreferencesUtils.saveBoolean(Constants.KEY_CHECK_PERMISSION, true)
         } else {
             permissionsRequestLauncher.launch(multiplePermissionNameList)
         }

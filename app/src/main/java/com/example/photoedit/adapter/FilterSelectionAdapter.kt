@@ -1,15 +1,10 @@
 package com.example.photoedit.adapter
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.photoedit.R
 import com.example.photoedit.databinding.ItemFilterPhotoBinding
-import com.example.photoedit.model.Filter
 import jp.co.cyberagent.android.gpuimage.GPUImage
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageBrightnessFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageColorInvertFilter
@@ -61,12 +56,12 @@ class FilterSelectionAdapter(
                     "Vignette" -> GPUImageVignetteFilter()
                     else -> null
                 }
-                if (filter !=null){
+                if (filter != null) {
                     gpuImage.setFilter(filter)
 
                     val filteredBitmap = gpuImage.bitmapWithFilterApplied
                     imageFilter.setImageBitmap(filteredBitmap)
-                }else{
+                } else {
                     imageFilter.setImageBitmap(bitmap)
                 }
 

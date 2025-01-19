@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toTopOf="@id/btn_crop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ic_back">
+        app:layout_constraintTop_toBottomOf="@id/btn_back">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -40,14 +40,44 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/imgView_background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@null"
+            app:layout_constraintBottom_toBottomOf="@id/imgView_image"
+            app:layout_constraintEnd_toEndOf="@id/imgView_image"
+            app:layout_constraintStart_toStartOf="@id/imgView_image"
+            app:layout_constraintTop_toTopOf="@id/imgView_image" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/containerLayout_sticker"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:elevation="@dimen/dimen_5_dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/imgView_image"
+            app:layout_constraintStart_toStartOf="@id/imgView_image"
+            app:layout_constraintTop_toTopOf="@id/imgView_image" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_sticker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:background="@color/light_black"
+        android:elevation="@dimen/dimen_8_dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/btn_crop"
+        app:spanCount="4" />
 
 
     <ImageButton
-        android:id="@+id/ic_back"
+        android:id="@+id/btn_back"
         android:layout_width="@dimen/dimen_50_dp"
         android:layout_height="@dimen/dimen_50_dp"
         android:layout_marginBottom="@dimen/dimen_10_dp"
@@ -145,22 +175,10 @@
         android:contentDescription="@null"
         android:src="@drawable/ic_color"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_blur"
+        app:layout_constraintEnd_toStartOf="@id/btn_delete"
         app:layout_constraintStart_toEndOf="@id/btn_frame"
         app:tint="@color/white" />
 
-    <ImageButton
-        android:id="@+id/btn_blur"
-        android:layout_width="@dimen/dimen_30_dp"
-        android:layout_height="@dimen/dimen_30_dp"
-        android:layout_marginBottom="@dimen/dimen_10_dp"
-        android:backgroundTint="@android:color/transparent"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_blur"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_delete"
-        app:layout_constraintStart_toEndOf="@id/btn_color"
-        app:tint="@color/white" />
 
     <ImageButton
         android:id="@+id/btn_delete"
@@ -172,7 +190,7 @@
         android:src="@drawable/ic_delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_blur"
+        app:layout_constraintStart_toEndOf="@id/btn_color"
         app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

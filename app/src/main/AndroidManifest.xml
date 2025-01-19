@@ -6,6 +6,8 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:ignore="SelectedPhotoAccess" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
@@ -24,6 +26,12 @@
         android:theme="@style/Theme.PhotoEdit"
         tools:targetApi="31">
 
+        <activity
+            android:name=".iu.image.color.ColorImageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".iu.image.frame.FrameActivity"
+            android:exported="false" />
         <activity
             android:name=".iu.image.draw.DrawPhotoActivity"
             android:exported="false"
@@ -51,15 +59,17 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".iu.main.MainActivity"
-            android:exported="true" />
+            android:exported="true">
 
+        </activity>
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="fullSensor"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

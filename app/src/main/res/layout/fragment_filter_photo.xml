@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".iu.camera.filter.FilterPhotoFragment"
-   >
+    tools:context=".iu.camera.filter.FilterPhotoFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:orientation="horizontal"/>
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <TextView
         android:id="@+id/tv_name"
@@ -24,7 +23,7 @@
         android:layout_margin="@dimen/dimen_10_dp"
         android:text="@string/filter"
         android:textColor="@color/white"
-        android:textSize="@dimen/dimen_15_sp"/>
+        android:textSize="@dimen/dimen_15_sp" />
 
     <TextView
         android:id="@+id/tv_filter"
@@ -33,19 +32,15 @@
         android:layout_below="@id/recycler_filter"
         android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/dimen_10_dp"
-        android:textColor="@color/white"
         android:text="@string/filter"
-        android:textSize="@dimen/dimen_15_sp"/>
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_15_sp" />
 
     <SeekBar
         android:id="@+id/seek_bar_filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_name"
-        android:layout_margin="@dimen/dimen_5_dp"/>
-
-
-
-
+        android:layout_margin="@dimen/dimen_5_dp" />
 
 </RelativeLayout>

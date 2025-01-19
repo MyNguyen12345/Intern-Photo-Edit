@@ -1,16 +1,16 @@
 package com.example.photoedit.utils
 
-import android.R
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
+import androidx.exifinterface.media.ExifInterface
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.File
 
 fun appSettingOpen(context: Context) {
     Toast.makeText(
@@ -33,16 +33,41 @@ fun warningPermissionDialog(context: Context, listener: DialogInterface.OnClickL
         .show()
 }
 
-fun intentActivity(context: Context,className: Class<*>){
+fun intentActivity(context: Context, className: Class<*>) {
     val intent = Intent(context, className)
     context.startActivity(intent)
 }
 
-fun intentActivity(context: Context,className: Class<*>,key:String,string : String){
-    val intent = Intent(context, className).apply {
-        putExtra(key,string)
+fun fixBitmapOrientation(bitmap: Bitmap, imagePath: String): Bitmap {
+    val exif = ExifInterface(imagePath)
+    val orientation = exif.getAttributeInt(
+        ExifInterface.TAG_ORIENTATION,
+        ExifInterface.ORIENTATION_NORMAL
+    )
+
+    val matrix = Matrix()
+    when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
     }
-    context.startActivity(intent)
+
+    return Bitmap.createBitmap(
+        bitmap,
+        0,
+        0,
+        bitmap.width,
+        bitmap.height,
+        matrix,
+        true
+    )
 }
 
-
+fun deleteImageFromInternalStorage(imagePath: String): Boolean {
+    val file = File(imagePath)
+    return if (file.exists()) {
+        file.delete()
+    } else {
+        false
+    }
+}

@@ -5,6 +5,138 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     tools:context=".iu.image.draw.DrawPhotoActivity">
+
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+
+    <ImageButton
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_tick"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <FrameLayout
+        android:id="@+id/frame_container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_0_dp"
+        app:layout_constraintBottom_toTopOf="@id/seek_stroke"
+        app:layout_constraintTop_toBottomOf="@id/btn_back">
+
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null" />
+
+
+        <com.example.photoedit.iu.view.DrawCustom
+            android:id="@+id/paint_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+    </FrameLayout>
+
+
+    <ImageButton
+        android:id="@+id/btn_border"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_border"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_line"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/white" />
+
+
+    <ImageButton
+        android:id="@+id/btn_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_reset"
+        app:layout_constraintEnd_toStartOf="@id/btn_save"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/btn_dashed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_dashed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_eraser"
+        app:layout_constraintStart_toEndOf="@id/btn_line"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/btn_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_dashed"
+        app:layout_constraintStart_toEndOf="@id/btn_border"
+        app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/btn_eraser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_eraser"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/view_color"
+        app:layout_constraintStart_toEndOf="@id/btn_dashed"
+        app:tint="@color/white" />
+
+    <SeekBar
+        android:id="@+id/seek_stroke"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:progressBackgroundTint="@color/white"
+        android:progressTint="@color/white"
+        android:thumbTint="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/view_color" />
+
+
+    <View
+        android:id="@+id/view_color"
+        android:layout_width="@dimen/dimen_30_dp"
+        android:layout_height="@dimen/dimen_30_dp"
+        android:background="@drawable/bc_view_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_eraser"
+        app:layout_constraintTop_toTopOf="@id/btn_eraser" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

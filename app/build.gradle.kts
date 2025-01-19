@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-kapt")
+//    alias(libs.plugins.google.gms.google.services)
+    id("com.google.gms.google-services")
 
 }
 
@@ -51,6 +53,7 @@ dependencies {
 
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.firebase.database)
     runtimeOnly("androidx.core:core-ktx:1.13.1")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -77,6 +80,11 @@ dependencies {
 
 
     implementation ("com.github.yalantis:ucrop:2.2.10")
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.google.firebase:firebase-storage:20.0.1")
+
+
 
 
 

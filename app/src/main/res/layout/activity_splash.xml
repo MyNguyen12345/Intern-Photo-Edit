@@ -7,9 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".iu.splash.SplashActivity">
 
-    <com.lottiefiles.dotlottie.core.widget.DotLottieAnimation
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottie_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="false"
+        app:lottie_speed="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
