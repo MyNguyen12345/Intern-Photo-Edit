@@ -31,6 +31,7 @@ class ImageActivity : AppCompatActivity() {
         observe()
         imageAdapter = ImagePagerAdapter()
         binding.viewPager.adapter = imageAdapter
+        binding.viewPager.currentItem = positionImage
 
         binding.btnBack.setOnClickListener {
             finish()
@@ -73,8 +74,8 @@ class ImageActivity : AppCompatActivity() {
             listImage = list
             if (positionImage in listImage.indices) {
                 imagePath = listImage[positionImage]
-                binding.viewPager.currentItem = positionImage
                 imageAdapter.submitList(listImage)
+                binding.viewPager.currentItem = positionImage
 
             } else {
                 finish()

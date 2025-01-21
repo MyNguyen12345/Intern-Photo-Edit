@@ -6,12 +6,17 @@ import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.widget.SeekBar
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.example.photoedit.R
 import com.example.photoedit.constants.Constants
 import com.example.photoedit.databinding.ActivityDrawPhotoBinding
@@ -19,6 +24,7 @@ import com.example.photoedit.databinding.DialogBorderBinding
 import com.example.photoedit.iu.view.DrawCustom
 import com.example.photoedit.utils.dialogFinished
 import com.example.photoedit.utils.fixBitmapOrientation
+import com.example.photoedit.utils.getContentBounds
 import com.example.photoedit.utils.saveImage
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
@@ -45,13 +51,39 @@ class DrawPhotoActivity : AppCompatActivity() {
             binding.seekStroke.min = 5
         }
 
+
         Glide.with(this)
             .load(imagePath)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+
+                    return false
+                }
+
+            })
             .into(binding.imageView)
+
+
 
         val mainBitmap = BitmapFactory.decodeFile(imagePath)
         bitmap = imagePath?.let { fixBitmapOrientation(mainBitmap, it) }
         bitmap?.let { paintview.setBitmap(it) }
+
 
         binding.viewColor.setOnClickListener {
             ColorPickerDialog
@@ -116,32 +148,25 @@ class DrawPhotoActivity : AppCompatActivity() {
         }
 
         binding.btnSave.setOnClickListener {
-            val width = bitmap!!.width
-            val height = bitmap!!.height
-
-            val combinedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(combinedBitmap)
-
-            canvas.drawBitmap(bitmap!!, 0f, 0f, null)
+            val frameLayout = binding.frameContainer
+            val originalBitmap = Bitmap.createBitmap(frameLayout.width, frameLayout.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(originalBitmap)
+            binding.frameContainer.draw(canvas)
 
 
-            val scaleX = width.toFloat() / paintview.width
-            val scaleY = height.toFloat() / paintview.height
+            val contentBounds = getContentBounds(originalBitmap)
 
-
-            val paintViewBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val paintViewCanvas = Canvas(paintViewBitmap)
-            paintview.draw(paintViewCanvas)
-
-            canvas.save()
-            canvas.scale(scaleX, scaleY)
-            canvas.drawBitmap(paintViewBitmap, 0f, 0f, null)
-            canvas.restore()
+            val croppedBitmap = Bitmap.createBitmap(
+                originalBitmap,
+                contentBounds.left,
+                contentBounds.top,
+                contentBounds.width(),
+                contentBounds.height()
+            )
 
             imagePath = imagePath?.let { path ->
-                saveImage(this, combinedBitmap, path)
+                saveImage(this, croppedBitmap, path)
             }
-
             val returnIntent = Intent()
             returnIntent.putExtra(Constants.KEY_IMAGE_PATH, imagePath)
             returnIntent.putExtra(Constants.KEY_IMAGE_BACKGROUND, backgroundImage)
@@ -151,6 +176,9 @@ class DrawPhotoActivity : AppCompatActivity() {
 
 
     }
+
+
+
 
 
     private fun dialogBorder() {
@@ -181,12 +209,9 @@ class DrawPhotoActivity : AppCompatActivity() {
                         fromUser: Boolean
                     ) {
                         paintview.setBorderStroke(progress)
-                        binding.imageView.setPadding(
-                            progress / 2,
-                            progress / 2,
-                            progress / 2,
-                            progress / 2
-                        )
+                        val maxPadding = minOf(binding.imageView.width, binding.imageView.height) / 2
+                        val padding = progress.coerceAtMost(maxPadding) / 2
+                        binding.imageView.setPadding(padding, padding, padding, padding)
                     }
 
                     override fun onStartTrackingTouch(seek: SeekBar) {}

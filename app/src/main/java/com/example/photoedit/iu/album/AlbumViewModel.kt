@@ -15,6 +15,8 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
     private var subscription: CompositeDisposable = CompositeDisposable()
     private val images: MutableLiveData<List<String>> = MutableLiveData()
 
+    val isSelectionMode = MutableLiveData(false)
+
 
     private fun addDisposable(vararg ds: Disposable) {
         ds.forEach { subscription.add(it) }

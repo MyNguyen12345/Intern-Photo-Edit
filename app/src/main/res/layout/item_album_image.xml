@@ -7,9 +7,14 @@
 
     <ImageView
         android:id="@+id/image_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@null" />
+        android:layout_width="@dimen/dimen_0_dp"
+        android:layout_height="@dimen/dimen_0_dp"
+        android:contentDescription="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <ProgressBar
         android:id="@+id/progress_circular"

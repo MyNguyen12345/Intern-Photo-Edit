@@ -30,7 +30,7 @@ class FilterSelectionAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val filter = filters[position]
-        holder.onBind(filter, position)
+        holder.onBind(filter)
     }
 
     override fun getItemCount(): Int = filters.size
@@ -38,7 +38,7 @@ class FilterSelectionAdapter(
     inner class ViewHolder(private val binding: ItemFilterPhotoBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun onBind(filterName: String, position: Int) {
+        fun onBind(filterName: String) {
             binding.apply {
                 tvFilter.text = filterName
                 val gpuImage = GPUImage(itemView.context)

@@ -43,8 +43,8 @@ class DrawCustom @JvmOverloads constructor(
 
 
     private val borderPaint = Paint().apply {
-        color = Color.WHITE // Màu viền
-        style = Paint.Style.STROKE // Chỉ vẽ viền
+        color = Color.WHITE
+        style = Paint.Style.STROKE
         strokeWidth = 0f
     }
 
@@ -77,10 +77,18 @@ class DrawCustom @JvmOverloads constructor(
 
         canvasBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
         canvas = Canvas(canvasBitmap)
-
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
         invalidate()
     }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        if (::originalBitmap.isInitialized) {
+            canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            canvas = Canvas(canvasBitmap)
+            updateRectF()
+        }
+    }
+
 
     fun setColorDraw(color: Int) {
         drawPaint.color = color
@@ -133,36 +141,10 @@ class DrawCustom @JvmOverloads constructor(
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val halfBorderWidth = borderPaint.strokeWidth / 2
 
         if (::canvasBitmap.isInitialized) {
             canvas.drawBitmap(canvasBitmap, 0f, 0f, null)
         }
-
-
-        val scale =
-            min(width.toFloat() / originalBitmap.width, height.toFloat() / originalBitmap.height)
-
-        val scaledWidth = originalBitmap.width * scale
-        val scaledHeight = originalBitmap.height * scale
-        val left = (width - scaledWidth) / 2
-        val top = (height - scaledHeight) / 2
-        val right = left + scaledWidth
-        val bottom = top + scaledHeight
-
-        borderRect = RectF(
-            left,
-            top,
-            right,
-            bottom
-        )
-        innerRect = RectF(
-            left + halfBorderWidth,
-            top + halfBorderWidth,
-            right - halfBorderWidth,
-            bottom - halfBorderWidth
-        )
-
 
         if (borderPaint.strokeWidth > 0) {
             borderRect?.let { canvas.drawRect(it, borderPaint) }
@@ -187,6 +169,28 @@ class DrawCustom @JvmOverloads constructor(
 
         }
     }
+
+    private fun updateRectF() {
+        val halfBorderWidth = borderPaint.strokeWidth / 2
+        val scale =
+            min(width.toFloat() / originalBitmap.width, height.toFloat() / originalBitmap.height)
+
+        val scaledWidth = originalBitmap.width * scale
+        val scaledHeight = originalBitmap.height * scale
+        val left = (width - scaledWidth) / 2
+        val top = (height - scaledHeight) / 2
+        val right = left + scaledWidth
+        val bottom = top + scaledHeight
+
+        borderRect = RectF(left, top, right, bottom)
+        innerRect = RectF(
+            left + halfBorderWidth,
+            top + halfBorderWidth,
+            right - halfBorderWidth,
+            bottom - halfBorderWidth
+        )
+    }
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {

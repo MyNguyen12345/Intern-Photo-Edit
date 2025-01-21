@@ -12,13 +12,28 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.photoedit.databinding.ItemAlbumBinding
+import com.example.photoedit.iu.album.AlbumViewModel
 
 class AlbumAdapter(
     private val context: Context,
-    var images: List<String>,
+    private var images: List<String>,
+    private val viewModel: AlbumViewModel,
     private val onClick: (String, Int) -> Unit
 ) :
     RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
+    private val selectedItems = mutableListOf<Boolean>().apply {
+        repeat(images.size) { add(false) }
+    }
+
+    private var isSelectionMode = false
+
+
+    fun updateImages(newImages: List<String>) {
+        images = newImages
+        selectedItems.clear()
+        selectedItems.addAll(List(newImages.size) { false })
+        notifyDataSetChanged()
+    }
 
     inner class ViewHolder(private val binding: ItemAlbumBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -33,7 +48,8 @@ class AlbumAdapter(
                             isFirstResource: Boolean
                         ): Boolean {
                             progressCircular.visibility = View.GONE
-                            return false; }
+                            return false
+                        }
 
                         override fun onResourceReady(
                             resource: Drawable?,
@@ -43,11 +59,34 @@ class AlbumAdapter(
                             isFirstResource: Boolean
                         ): Boolean {
                             progressCircular.visibility = View.GONE
-                            return false; }
+                            return false
+                        }
                     }).into(imageGallery)
 
                 imageGallery.setOnClickListener {
-                    onClick.invoke(image, position)
+                    if (isSelectionMode) {
+                        selectedItems[position] = !selectedItems[position]
+                        checkbox.isChecked = selectedItems[position]
+                    } else {
+                        onClick.invoke(image, position)
+                    }
+                }
+                if (selectedItems.isNotEmpty()) {
+                    checkbox.visibility = if (isSelectionMode) View.VISIBLE else View.INVISIBLE
+                    checkbox.isChecked = selectedItems[position]
+
+                    imageGallery.setOnLongClickListener {
+
+                        isSelectionMode = true
+                        viewModel.isSelectionMode.value = true
+                        notifyDataSetChanged()
+                        true
+                    }
+
+                    checkbox.setOnClickListener {
+                        selectedItems[position] = checkbox.isChecked
+                    }
+
                 }
 
             }
@@ -63,5 +102,16 @@ class AlbumAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.onBind(images[position], position)
+    }
+
+    fun exitSelectionMode() {
+        isSelectionMode = false
+        selectedItems.fill(false)
+        viewModel.isSelectionMode.value = false
+        notifyDataSetChanged()
+    }
+
+    fun getSelectedImages(): List<String> {
+        return images.filterIndexed { index, _ -> selectedItems[index] }
     }
 }

@@ -26,7 +26,7 @@ class ImagePagerAdapter :
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val imagePath = getItem(position)
 
-        Glide.with(holder.itemView.context).load(imagePath).centerCrop()
+        Glide.with(holder.itemView.context).load(imagePath)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,

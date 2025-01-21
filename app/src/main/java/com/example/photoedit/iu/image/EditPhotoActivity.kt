@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -21,6 +22,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.example.photoedit.R
 import com.example.photoedit.adapter.StickerAdapter
 import com.example.photoedit.constants.Constants
@@ -37,6 +42,8 @@ import com.example.photoedit.model.Sticker
 import com.example.photoedit.utils.deleteImageFromInternalStorage
 import com.example.photoedit.utils.dialogFinished
 import com.example.photoedit.utils.fixBitmapOrientation
+import com.example.photoedit.utils.getContentBounds
+import com.example.photoedit.utils.getImageViewDimensions
 import com.example.photoedit.utils.saveImageToGallery
 import com.yalantis.ucrop.UCrop
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -45,6 +52,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
+
 
 class EditPhotoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditPhotoBinding
@@ -83,13 +91,13 @@ class EditPhotoActivity : AppCompatActivity() {
         imagePath = intent.getStringExtra(Constants.KEY_IMAGE_PATH)
 
 
-        Glide.with(this)
-            .load(imagePath)
-            .into(binding.imgViewImage)
+
+
         binding.btnCrop.setOnClickListener {
             startImageCrop()
 
         }
+
 
         binding.btnBack.setOnClickListener {
             dialogFinished(getString(R.string.cancel_changes_dialog), this, null) { finish() }
@@ -162,7 +170,7 @@ class EditPhotoActivity : AppCompatActivity() {
                     endToEnd = binding.containerLayout.id
                 }
 
-                hint = "Nhập văn bản"
+                hint = getString(R.string.hint_text)
                 setHintTextColor(Color.WHITE)
                 setTextColor(Color.WHITE)
                 textSize = 18f
@@ -219,6 +227,7 @@ class EditPhotoActivity : AppCompatActivity() {
 
         val localFile = File(filesDir, imagePathInStorage)
 
+
         if (localFile.exists()) {
             val newImageView = CustomImageView(this, null).apply {
                 id = View.generateViewId()
@@ -236,7 +245,6 @@ class EditPhotoActivity : AppCompatActivity() {
 
             }
 
-
             val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
             newImageView.setImageBitmap(bitmap)
             binding.containerLayout.addView(newImageView)
@@ -249,15 +257,26 @@ class EditPhotoActivity : AppCompatActivity() {
                 stickers[positionSticker] = sticker
                 adapter?.stickers = stickers
                 adapter?.notifyDataSetChanged()
-                stickers.forEach {
-                    Log.d("TAG", "setSticker: " + it.isDownload)
-                }
-
 
             }
 
         }
     }
+
+    fun setLayoutContainer() {
+        binding.containerLayout.post {
+            val (displayedWidth, displayedHeight) = getImageViewDimensions(binding.imgViewImage)
+            Log.d("TAG", "setLayoutContainer: $displayedWidth x $displayedHeight")
+            if (displayedWidth > 0 && displayedHeight > 0) {
+                val layoutParams = binding.containerLayout.layoutParams
+                layoutParams.width = displayedWidth
+                layoutParams.height = displayedHeight
+                binding.containerLayout.layoutParams = layoutParams
+                binding.containerLayout.requestLayout()
+            }
+        }
+    }
+
 
     private fun setColorImage() {
         Glide.with(this)
@@ -291,7 +310,6 @@ class EditPhotoActivity : AppCompatActivity() {
                     mainBitmap.config
                 )
             }
-
 
             val canvas = newBitmap?.let { it1 -> Canvas(it1) }
             scaledBackgroundBitmap?.let { it1 -> canvas?.drawBitmap(it1, 0f, 0f, null) }
@@ -337,8 +355,32 @@ class EditPhotoActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        Glide.with(this).load(imagePath)
+        Glide.with(this)
+            .load(imagePath)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    setLayoutContainer()
+                    return false
+                }
+
+            })
             .into(binding.imgViewImage)
+
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
@@ -368,8 +410,18 @@ class EditPhotoActivity : AppCompatActivity() {
 
         containerLayout.draw(canvas)
 
+        val contentBounds = getContentBounds(bitmap)
+
+        val croppedBitmap = Bitmap.createBitmap(
+            bitmap,
+            contentBounds.left,
+            contentBounds.top,
+            contentBounds.width(),
+            contentBounds.height()
+        )
+
         subscription.add(
-            saveImageToGallery(this, bitmap).subscribeOn(Schedulers.io())
+            saveImageToGallery(this, croppedBitmap).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     Toast.makeText(this, "save image $it", Toast.LENGTH_SHORT).show()
@@ -386,4 +438,6 @@ class EditPhotoActivity : AppCompatActivity() {
         super.onDestroy()
         subscription.clear()
     }
+
+
 }

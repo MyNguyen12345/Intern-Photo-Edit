@@ -5,19 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_696969"
+    android:background="@drawable/background"
     tools:context=".iu.main.MainActivity">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dimen_10_dp"
-        android:gravity="center"
-        android:text="@string/photo_edit"
-        android:textColor="@color/bc_color_2"
-        android:textSize="@dimen/dimen_25_sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/btn_edit"
@@ -29,7 +19,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_album"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/black" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -51,7 +42,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/btn_edit"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/black" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -24,7 +24,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:elevation="@dimen/dimen_5_dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/imgView_image"
             app:layout_constraintEnd_toEndOf="@id/imgView_image"
             app:layout_constraintStart_toStartOf="@id/imgView_image"
             app:layout_constraintTop_toTopOf="@id/imgView_image" />
@@ -52,8 +52,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/containerLayout_sticker"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="@dimen/dimen_0_dp"
+            android:layout_height="@dimen/dimen_0_dp"
             android:elevation="@dimen/dimen_5_dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/imgView_image"

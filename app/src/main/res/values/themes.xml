@@ -5,5 +5,11 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.PhotoEdit" parent="Base.Theme.PhotoEdit" />
+    <style name="Theme.PhotoEdit" parent="Base.Theme.PhotoEdit" >
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:navigationBarColor">@color/black</item>
+
+
+
+    </style>
 </resources>

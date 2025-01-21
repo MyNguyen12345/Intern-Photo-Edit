@@ -3,8 +3,11 @@ package com.example.photoedit.utils
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Rect
 import android.net.Uri
 import android.provider.MediaStore
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import io.reactivex.rxjava3.core.Single
@@ -126,7 +129,46 @@ fun saveImageToGallery(context: Context, bitmap: Bitmap): Single<Uri> {
     }
 }
 
+fun getContentBounds(bitmap: Bitmap): Rect {
+    val width = bitmap.width
+    val height = bitmap.height
+    var top = height
+    var left = width
+    var right = 0
+    var bottom = 0
 
+    for (y in 0 until height) {
+        for (x in 0 until width) {
+            if (bitmap.getPixel(x, y) != Color.TRANSPARENT) {
+                top = top.coerceAtMost(y)
+                left = left.coerceAtMost(x)
+                right = right.coerceAtLeast(x)
+                bottom = bottom.coerceAtLeast(y)
+            }
+        }
+    }
 
+    return Rect(left, top, right, bottom)
+}
 
+fun getImageViewDimensions(imageView: ImageView): Pair<Int, Int> {
+    val drawable = imageView.drawable ?: return Pair(0, 0)
 
+    val intrinsicWidth = drawable.intrinsicWidth
+    val intrinsicHeight = drawable.intrinsicHeight
+
+    val imageViewWidth = imageView.width
+    val imageViewHeight = imageView.height
+
+    val scaleFactor =
+        if (intrinsicWidth * imageViewHeight > intrinsicHeight * imageViewWidth) {
+            imageViewWidth.toFloat() / intrinsicWidth
+        } else {
+            imageViewHeight.toFloat() / intrinsicHeight
+        }
+
+    val displayedWidth = (intrinsicWidth * scaleFactor).toInt()
+    val displayedHeight = (intrinsicHeight * scaleFactor).toInt()
+
+    return Pair(displayedWidth, displayedHeight)
+}

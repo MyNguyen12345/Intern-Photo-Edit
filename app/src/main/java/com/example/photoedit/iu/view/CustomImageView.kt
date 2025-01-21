@@ -19,6 +19,7 @@ class CustomImageView(context: Context, attrs: AttributeSet?) : AppCompatImageVi
     private val scaleGestureDetector: ScaleGestureDetector
     private val imageMatrix = Matrix()
 
+
     init {
         setBackgroundColor(Color.TRANSPARENT)
         isFocusable = true
@@ -26,6 +27,7 @@ class CustomImageView(context: Context, attrs: AttributeSet?) : AppCompatImageVi
         scaleGestureDetector = ScaleGestureDetector(context, ScaleListener())
         scaleType = ScaleType.MATRIX
     }
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -42,7 +44,6 @@ class CustomImageView(context: Context, attrs: AttributeSet?) : AppCompatImageVi
                 if (isDragging) {
                     val deltaX = event.rawX - lastX
                     val deltaY = event.rawY - lastY
-//                    imageMatrix.postTranslate(deltaX, deltaY)
 
                     x = (x + deltaX)
                     y = (y + deltaY)
