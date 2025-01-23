@@ -75,6 +75,20 @@
         app:layout_constraintBottom_toTopOf="@id/btn_crop"
         app:spanCount="4" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:elevation="@dimen/dimen_10_dp"
+        android:indeterminateTint="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_crop"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:visibility="invisible" />
+
+
 
     <ImageButton
         android:id="@+id/btn_back"

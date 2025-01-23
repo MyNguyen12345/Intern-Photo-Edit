@@ -8,6 +8,8 @@
     android:background="@color/black"
     tools:context=".iu.image.draw.DrawPhotoActivity">
 
+
+
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
@@ -19,6 +21,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_draw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/seek_stroke"
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:elevation="@dimen/dimen_5_dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="horizontal"
+        android:visibility="invisible"/>
 
 
     <ImageButton
@@ -113,9 +126,20 @@
         android:contentDescription="@null"
         android:src="@drawable/ic_eraser"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/view_color"
+        app:layout_constraintEnd_toStartOf="@id/btn_bc_draw"
         app:layout_constraintStart_toEndOf="@id/btn_dashed"
         app:tint="@color/white" />
+
+    <ImageButton
+        android:id="@+id/btn_bc_draw"
+        android:layout_width="@dimen/dimen_50_dp"
+        android:layout_height="@dimen/dimen_50_dp"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_bc_draw"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/view_color"
+        app:layout_constraintStart_toEndOf="@id/btn_eraser" />
 
     <SeekBar
         android:id="@+id/seek_stroke"
@@ -135,7 +159,7 @@
         android:background="@drawable/bc_view_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_eraser"
+        app:layout_constraintStart_toEndOf="@id/btn_bc_draw"
         app:layout_constraintTop_toTopOf="@id/btn_eraser" />
 
 

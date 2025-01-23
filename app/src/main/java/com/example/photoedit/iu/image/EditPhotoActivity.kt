@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
@@ -30,12 +31,16 @@ import com.example.photoedit.R
 import com.example.photoedit.adapter.StickerAdapter
 import com.example.photoedit.constants.Constants
 import com.example.photoedit.databinding.ActivityEditPhotoBinding
+import com.example.photoedit.databinding.DialogSaveBinding
 import com.example.photoedit.firebase.getStickersFromFirebase
 import com.example.photoedit.firebase.getStoragePathFromUrl
 import com.example.photoedit.firebase.saveImageToInternalStorage
+import com.example.photoedit.iu.album.AlbumActivity
+import com.example.photoedit.iu.camera.TakePhotoActivity
 import com.example.photoedit.iu.image.color.ColorImageActivity
 import com.example.photoedit.iu.image.draw.DrawPhotoActivity
 import com.example.photoedit.iu.image.frame.FrameActivity
+import com.example.photoedit.iu.main.MainActivity
 import com.example.photoedit.iu.view.CustomEditTextView
 import com.example.photoedit.iu.view.CustomImageView
 import com.example.photoedit.model.Sticker
@@ -44,6 +49,7 @@ import com.example.photoedit.utils.dialogFinished
 import com.example.photoedit.utils.fixBitmapOrientation
 import com.example.photoedit.utils.getContentBounds
 import com.example.photoedit.utils.getImageViewDimensions
+import com.example.photoedit.utils.intentActivity
 import com.example.photoedit.utils.saveImageToGallery
 import com.yalantis.ucrop.UCrop
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -63,6 +69,7 @@ class EditPhotoActivity : AppCompatActivity() {
     private var positionSticker = -1
     private var adapter: StickerAdapter? = null
     private var subscription: CompositeDisposable = CompositeDisposable()
+    private lateinit var dialog: AlertDialog
 
     private lateinit var cropImageLauncher: ActivityResultLauncher<Intent>
     private val editTextViews: MutableList<CustomEditTextView> = mutableListOf()
@@ -94,6 +101,7 @@ class EditPhotoActivity : AppCompatActivity() {
 
 
         binding.btnCrop.setOnClickListener {
+            binding.recyclerSticker.visibility = View.INVISIBLE
             startImageCrop()
 
         }
@@ -108,12 +116,16 @@ class EditPhotoActivity : AppCompatActivity() {
         }
 
         binding.btnFrame.setOnClickListener {
+            binding.recyclerSticker.visibility = View.INVISIBLE
+
             val intent = Intent(this@EditPhotoActivity, FrameActivity::class.java).apply {
                 putExtra(Constants.KEY_IMAGE_PATH, imagePath)
             }
             resultLauncher.launch(intent)
         }
         binding.btnEdit.setOnClickListener {
+            binding.recyclerSticker.visibility = View.INVISIBLE
+
             val intent = Intent(this@EditPhotoActivity, DrawPhotoActivity::class.java).apply {
                 putExtra(Constants.KEY_IMAGE_PATH, imagePath)
                 putExtra(Constants.KEY_IMAGE_BACKGROUND, backgroundImage)
@@ -121,33 +133,34 @@ class EditPhotoActivity : AppCompatActivity() {
             resultLauncher.launch(intent)
         }
         binding.btnSticker.setOnClickListener {
-            binding.recyclerSticker.visibility = View.VISIBLE
-
-            adapter = StickerAdapter(this, stickers) { sticker, position ->
-                this.sticker = sticker
-                positionSticker = position
-                setSticker()
-
-            }
-            binding.recyclerSticker.adapter = adapter
+            binding.recyclerSticker.visibility = View.INVISIBLE
+            binding.progressBar.visibility = View.VISIBLE
 
 
             getStickersFromFirebase(
                 this,
                 onSuccess = { stickers ->
                     this.stickers = stickers.toMutableList()
-                    adapter?.stickers = stickers
+                    adapter = StickerAdapter(this, this.stickers) { sticker, position ->
+                        this.sticker = sticker
+                        positionSticker = position
+                        setSticker()
+                    }
+                    binding.recyclerSticker.adapter = adapter
+                    binding.progressBar.visibility = View.INVISIBLE
+                    binding.recyclerSticker.visibility = View.VISIBLE
                     adapter?.notifyDataSetChanged()
-
                 },
-                onFailure = { exception ->
-                    Log.e("Firebase", "Error fetching stickers", exception)
+                onFailure = { _ ->
+                    Toast.makeText(this,"Download failed",Toast.LENGTH_SHORT).show()
                 }
             )
 
         }
 
         binding.btnColor.setOnClickListener {
+            binding.recyclerSticker.visibility = View.INVISIBLE
+
             val intent = Intent(this@EditPhotoActivity, ColorImageActivity::class.java).apply {
                 putExtra(Constants.KEY_IMAGE_PATH, imagePath)
                 putExtra(Constants.KEY_IMAGE_BACKGROUND, backgroundImage)
@@ -157,6 +170,8 @@ class EditPhotoActivity : AppCompatActivity() {
         }
 
         binding.btnText.setOnClickListener {
+            binding.recyclerSticker.visibility = View.INVISIBLE
+
             val newEditTextView = CustomEditTextView(this, null).apply {
                 id = View.generateViewId()
                 layoutParams = ConstraintLayout.LayoutParams(
@@ -184,7 +199,12 @@ class EditPhotoActivity : AppCompatActivity() {
         }
 
         binding.btnSave.setOnClickListener {
+            binding.recyclerSticker.visibility = View.INVISIBLE
             addTextToImage()
+           dialogFinished(getString(R.string.do_home),this,imagePath){
+               intentActivity(this@EditPhotoActivity, MainActivity::class.java)
+
+           }
         }
 
         binding.btnDelete.setOnClickListener {
@@ -204,7 +224,6 @@ class EditPhotoActivity : AppCompatActivity() {
                             .into(binding.imgViewImage)
 
                     }
-                    imagePath?.let { deleteImageFromInternalStorage(it) }
 
                     imagePath = resultUri?.path.toString()
                     setBackgroundImage()
@@ -251,14 +270,16 @@ class EditPhotoActivity : AppCompatActivity() {
 
 
         } else {
-            dialogFinished(getString(R.string.download_dialog), this, null) {
-                sticker.stickerPath?.let { it1 -> saveImageToInternalStorage(it1, this) }
-                sticker.isDownload = true
-                stickers[positionSticker] = sticker
-                adapter?.stickers = stickers
-                adapter?.notifyDataSetChanged()
-
+            if (!sticker.isDownload) {
+                dialogFinished(getString(R.string.download_dialog), this, null) {
+                    sticker.stickerPath?.let { it1 -> saveImageToInternalStorage(it1, this) }
+                    sticker.isDownload = true
+                    stickers[positionSticker] = sticker
+                    adapter?.stickers = stickers
+                    adapter?.notifyDataSetChanged()
+                }
             }
+
 
         }
     }
@@ -266,7 +287,6 @@ class EditPhotoActivity : AppCompatActivity() {
     fun setLayoutContainer() {
         binding.containerLayout.post {
             val (displayedWidth, displayedHeight) = getImageViewDimensions(binding.imgViewImage)
-            Log.d("TAG", "setLayoutContainer: $displayedWidth x $displayedHeight")
             if (displayedWidth > 0 && displayedHeight > 0) {
                 val layoutParams = binding.containerLayout.layoutParams
                 layoutParams.width = displayedWidth
@@ -324,12 +344,18 @@ class EditPhotoActivity : AppCompatActivity() {
 
     private fun startImageCrop() {
         imagePath?.let { path ->
+            var sourceUri: Uri? = null
+
             val sourceFile = File(path)
-            val sourceUri = FileProvider.getUriForFile(
-                this,
-                "com.example.photoedit.provider",
-                sourceFile
-            )
+            sourceUri = if (sourceFile.exists()) {
+                FileProvider.getUriForFile(
+                    this,
+                    "com.example.photoedit.provider",
+                    sourceFile
+                )
+            } else {
+                Uri.parse(path)
+            }
 
 
             val imageFolder = File(cacheDir, "Images")
@@ -434,10 +460,34 @@ class EditPhotoActivity : AppCompatActivity() {
 
     }
 
+    private fun dialogSave() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        val binding = DialogSaveBinding.inflate(layoutInflater)
+        builder.setView(binding.root)
+        binding.apply {
+            btnNo.setOnClickListener { dialog.dismiss() }
+            btnPhoto.setOnClickListener {
+                imagePath?.let { it1 -> deleteImageFromInternalStorage(it1) }
+                intentActivity(this@EditPhotoActivity, TakePhotoActivity::class.java)
+                dialog.dismiss()
+                finish()
+            }
+            btnAlbum.setOnClickListener {
+                imagePath?.let { it1 -> deleteImageFromInternalStorage(it1) }
+                intentActivity(this@EditPhotoActivity, AlbumActivity::class.java)
+                dialog.dismiss()
+                finish()
+
+            }
+        }
+
+        dialog = builder.create()
+        dialog.show()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         subscription.clear()
     }
-
 
 }

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">PhotoEdit</string>
-    <string name="photo_edit">Photo Edit</string>
+    <string name="photo_edit">Photo Editor</string>
     <string name="album">Album</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -17,4 +17,10 @@
   <string name="download_dialog">Do you want to download the sticker?</string>
   <string name="cancel_app_dialog">Do you want to cancel the application?</string>
   <string name="cancel_changes_dialog">Do you want to cancel the changes?</string>
+    <string name="do_home">do you want to go to home screen?</string>
+    <string name="camera">Camera</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.example.photoedit.iu.album
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +14,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 class AlbumViewModel(application: Application) : AndroidViewModel(application) {
     private var subscription: CompositeDisposable = CompositeDisposable()
-    private val images: MutableLiveData<List<String>> = MutableLiveData()
+    private val images: MutableLiveData<List<Uri>> = MutableLiveData()
 
     val isSelectionMode = MutableLiveData(false)
 
@@ -22,7 +23,7 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
         ds.forEach { subscription.add(it) }
     }
 
-    fun getData(): LiveData<List<String>> {
+    fun getData(): LiveData<List<Uri>> {
         return images
     }
 
@@ -43,7 +44,7 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    private fun loadData(): Observable<List<String>> {
+    private fun loadData(): Observable<List<Uri>> {
         return Observable.create { emitter ->
             try {
                 val list = getAllImages(getApplication())

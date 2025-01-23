@@ -2,6 +2,7 @@ package com.example.photoedit.adapter
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,7 @@ import com.example.photoedit.iu.album.AlbumViewModel
 
 class AlbumAdapter(
     private val context: Context,
-    private var images: List<String>,
+    private var images: List<Uri>,
     private val viewModel: AlbumViewModel,
     private val onClick: (String, Int) -> Unit
 ) :
@@ -28,7 +29,7 @@ class AlbumAdapter(
     private var isSelectionMode = false
 
 
-    fun updateImages(newImages: List<String>) {
+    fun updateImages(newImages: List<Uri>) {
         images = newImages
         selectedItems.clear()
         selectedItems.addAll(List(newImages.size) { false })
@@ -37,7 +38,7 @@ class AlbumAdapter(
 
     inner class ViewHolder(private val binding: ItemAlbumBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun onBind(image: String, position: Int) {
+        fun onBind(image: Uri, position: Int) {
             binding.apply {
                 Glide.with(context).load(image).centerCrop()
                     .listener(object : RequestListener<Drawable> {
@@ -68,7 +69,7 @@ class AlbumAdapter(
                         selectedItems[position] = !selectedItems[position]
                         checkbox.isChecked = selectedItems[position]
                     } else {
-                        onClick.invoke(image, position)
+                        onClick.invoke(image.path.toString(), position)
                     }
                 }
                 if (selectedItems.isNotEmpty()) {
@@ -111,7 +112,7 @@ class AlbumAdapter(
         notifyDataSetChanged()
     }
 
-    fun getSelectedImages(): List<String> {
+    fun getSelectedImages(): List<Uri> {
         return images.filterIndexed { index, _ -> selectedItems[index] }
     }
 }

@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -15,6 +16,7 @@ import com.example.photoedit.R
 import com.example.photoedit.adapter.FilterSelectionAdapter
 import com.example.photoedit.constants.Constants
 import com.example.photoedit.databinding.ActivityHomeEditImageBinding
+import com.example.photoedit.iu.camera.TakePhotoActivity
 import com.example.photoedit.utils.dialogFinished
 import com.example.photoedit.utils.fixBitmapOrientation
 import com.example.photoedit.utils.saveImageToGallery
@@ -61,80 +63,91 @@ class HomeEditImageActivity : AppCompatActivity() {
             .load(imagePath)
             .into(binding.imgViewImage)
 
-        binding.btnBack.setOnClickListener {
-            dialogFinished(getString(R.string.cancel_dialog), this, imagePath) { finish() }
-        }
+        val file = imagePath?.let { File(it) }
 
-        onBackPressedDispatcher.addCallback {
-            binding.btnBack.performClick()
-        }
-        binding.btnShare.setOnClickListener {
-            binding.recyclerFilter.visibility = View.INVISIBLE
-
-            shareImage()
-
-        }
-
-        binding.btnFilter.setOnClickListener {
-            binding.recyclerFilter.visibility = View.VISIBLE
-            val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.beautiful)
-
-            val adapter = FilterSelectionAdapter(originalBitmap, filterNames) { filter ->
-                applyFilter(filter)
-            }
-            binding.recyclerFilter.adapter = adapter
-
-
-        }
-
-        binding.btnSave.setOnClickListener {
-            binding.recyclerFilter.visibility = View.INVISIBLE
-
-            val saveBitmap = if (bitmap == null) {
-                val mainBitmap = BitmapFactory.decodeFile(imagePath)
-                val rotatedBitmap = imagePath?.let { fixBitmapOrientation(mainBitmap, it) }
-
-                val newBitmap = rotatedBitmap?.let {
-                    Bitmap.createBitmap(
-                        it.width,
-                        rotatedBitmap.height,
-                        rotatedBitmap.config
-                    )
-                }
-                val canvas = newBitmap?.let { Canvas(it) }
-                rotatedBitmap?.let {
-                    canvas?.drawBitmap(it, 0f, 0f, null)
-                    rotatedBitmap
-                }
+        if (file != null) {
+            if (!file.exists()) {
+                finish()
             } else {
-                bitmap
-            }
+                binding.btnBack.setOnClickListener {
+                    dialogFinished(getString(R.string.cancel_dialog), this, imagePath) {
+                        finish() }
+                }
 
-            subscription.add(
-                saveImageToGallery(this, saveBitmap!!).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        Toast.makeText(this, "save image $it", Toast.LENGTH_SHORT).show()
+                onBackPressedDispatcher.addCallback {
+                    binding.btnBack.performClick()
+                }
+                binding.btnShare.setOnClickListener {
+                    binding.recyclerFilter.visibility = View.INVISIBLE
 
-                    }, {
-                        Toast.makeText(this, "don't save image $it", Toast.LENGTH_SHORT).show()
-
-                    })
-            )
-
-
-        }
-
-        binding.btnEdit.setOnClickListener {
-            binding.recyclerFilter.visibility = View.INVISIBLE
-            val intent =
-                Intent(this, EditPhotoActivity::class.java).apply {
-                    putExtra(Constants.KEY_IMAGE_PATH, imagePath)
+                    shareImage()
 
                 }
-            startActivity(intent)
-        }
 
+                binding.btnFilter.setOnClickListener {
+                    binding.recyclerFilter.visibility = View.VISIBLE
+                    val originalBitmap =
+                        BitmapFactory.decodeResource(resources, R.drawable.beautiful)
+
+                    val adapter = FilterSelectionAdapter(originalBitmap, filterNames) { filter ->
+                        applyFilter(filter)
+                    }
+                    binding.recyclerFilter.adapter = adapter
+
+
+                }
+
+                binding.btnSave.setOnClickListener {
+                    binding.recyclerFilter.visibility = View.INVISIBLE
+
+                    val saveBitmap = if (bitmap == null) {
+                        val mainBitmap = BitmapFactory.decodeFile(imagePath)
+                        val rotatedBitmap = imagePath?.let { fixBitmapOrientation(mainBitmap, it) }
+
+                        val newBitmap = rotatedBitmap?.let {
+                            Bitmap.createBitmap(
+                                it.width,
+                                rotatedBitmap.height,
+                                rotatedBitmap.config
+                            )
+                        }
+                        val canvas = newBitmap?.let { Canvas(it) }
+                        rotatedBitmap?.let {
+                            canvas?.drawBitmap(it, 0f, 0f, null)
+                            rotatedBitmap
+                        }
+                    } else {
+                        bitmap
+                    }
+
+                    subscription.add(
+                        saveImageToGallery(this, saveBitmap!!).subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+                                Toast.makeText(this, "save image $it", Toast.LENGTH_SHORT).show()
+
+                            }, {
+                                Toast.makeText(this, "don't save image $it", Toast.LENGTH_SHORT)
+                                    .show()
+
+                            })
+                    )
+
+
+                }
+
+                binding.btnEdit.setOnClickListener {
+                    binding.recyclerFilter.visibility = View.INVISIBLE
+                    val intent =
+                        Intent(this, EditPhotoActivity::class.java).apply {
+                            putExtra(Constants.KEY_IMAGE_PATH, imagePath)
+
+                        }
+                    startActivity(intent)
+                }
+
+            }
+        }
     }
 
     private fun shareImage() {

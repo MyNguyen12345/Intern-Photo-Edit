@@ -27,5 +27,7 @@
     <color name="color_1F1F1F">#1F1F1F</color>
     <color name="color_696969">#F2F6ECEC</color>
     <color name="blur">#BF3C3939</color>
+    <color name="bc_edit">#25BF6C</color>
+    <color name="bc_album">#CAA137</color>
 
 </resources>

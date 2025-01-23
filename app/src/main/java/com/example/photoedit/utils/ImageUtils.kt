@@ -1,5 +1,6 @@
 package com.example.photoedit.utils
 
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,9 +8,11 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.net.Uri
 import android.provider.MediaStore
+import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.example.photoedit.databinding.DialogMainBinding
 import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.io.FileOutputStream
@@ -59,40 +62,46 @@ fun dialogFinished(
     imagePath: String?,
     onConfirmed: () -> Unit,
 ) {
+    var dialog: AlertDialog? = null
     val builder: AlertDialog.Builder = AlertDialog.Builder(context)
-    builder
-        .setTitle(title)
-        .setPositiveButton("Yes") { dialog, _ ->
+    val binding = DialogMainBinding.inflate(LayoutInflater.from(context))
+    builder.setView(binding.root)
+    binding.apply {
+        btnNo.setOnClickListener {
+            dialog?.dismiss()
+        }
+        binding.btnYes.setOnClickListener {
             imagePath?.let { deleteImageFromInternalStorage(it) }
             onConfirmed()
-            dialog.dismiss()
+            dialog?.dismiss()
         }
-        .setNegativeButton("No") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-    val dialog: AlertDialog = builder.create()
+        tvTitle.text = title
+    }
+    dialog = builder.create()
     dialog.show()
 }
 
-fun getAllImages(context: Context): List<String> {
-    val imageList = mutableListOf<String>()
-    val projection = arrayOf(MediaStore.Images.Media.DATA)
-    val selection = "${MediaStore.Images.Media.DATA} LIKE ?"
-    val selectionArgs = arrayOf("%Pictures/images/%")
+
+fun getAllImages(context: Context): List<Uri> {
+    val imageList = mutableListOf<Uri>()
+    val projection = arrayOf(MediaStore.Images.Media._ID)
 
     val cursor = context.contentResolver.query(
         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
         projection,
-        selection,
-        selectionArgs,
+        null,
+        null,
         "${MediaStore.Images.Media.DATE_ADDED} DESC"
     )
     cursor?.use {
-        val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
         while (cursor.moveToNext()) {
-            val imagePath = cursor.getString(columnIndex)
-            imageList.add(imagePath)
+            val imageId = cursor.getLong(columnIndex)
+            val imageUri = ContentUris.withAppendedId(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                imageId
+            )
+            imageList.add(imageUri)
         }
     }
     return imageList
@@ -107,7 +116,6 @@ fun saveImageToGallery(context: Context, bitmap: Bitmap): Single<Uri> {
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/images")
         }
 
         val resolver = context.contentResolver
@@ -172,3 +180,15 @@ fun getImageViewDimensions(imageView: ImageView): Pair<Int, Int> {
 
     return Pair(displayedWidth, displayedHeight)
 }
+
+fun getPathFromUri(context: Context, uri: Uri): String? {
+    val projection = arrayOf(MediaStore.Images.Media.DATA)
+    context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+        val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        if (cursor.moveToFirst()) {
+            return cursor.getString(columnIndex)
+        }
+    }
+    return null
+}
+

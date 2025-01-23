@@ -5,55 +5,153 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
+    android:background="@color/black"
     tools:context=".iu.main.MainActivity">
 
-
-    <ImageButton
-        android:id="@+id/btn_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@android:color/transparent"
+    <ImageView
+        android:id="@+id/img_main"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:contentDescription="@null"
-        android:src="@drawable/ic_edit_image"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_album"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/black" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/photo_edit"
-        android:textSize="@dimen/dimen_18_sp"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="@id/btn_edit"
-        app:layout_constraintStart_toStartOf="@id/btn_edit"
-        app:layout_constraintTop_toBottomOf="@id/btn_edit" />
-
-    <ImageButton
-        android:id="@+id/btn_album"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@android:color/transparent"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_album"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bc_1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_edit"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/black" />
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_main"
+        app:layout_constraintBottom_toBottomOf="@+id/img_main"
+        app:layout_constraintHeight_percent="0.2" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/album"
-        android:textSize="@dimen/dimen_18_sp"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="@id/btn_album"
-        app:layout_constraintStart_toStartOf="@id/btn_album"
-        app:layout_constraintTop_toBottomOf="@id/btn_album" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"    
+        android:layout_margin="@dimen/dimen_10_dp"
+        android:elevation="@dimen/dimen_20_dp"
+        android:fontFamily="@font/agbalumo"
+        android:gravity="center"
+        android:text="@string/photo_edit"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_30_sp"
+        app:layout_constraintBottom_toBottomOf="@id/view"
+        app:layout_constraintEnd_toEndOf="@id/view"
+        app:layout_constraintStart_toStartOf="@id/view"
+        app:layout_constraintTop_toTopOf="@id/view" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_edit"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dimen_80_dp"
+        android:layout_marginStart="@dimen/dimen_20_dp"
+        android:layout_marginEnd="@dimen/dimen_10_dp"
+        android:background="@drawable/bc_layout"
+        android:backgroundTint="@color/bc_edit"
+        app:layout_constraintBottom_toBottomOf="@id/layout_album"
+        app:layout_constraintEnd_toStartOf="@id/layout_album"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/img_main"
+        app:layout_constraintTop_toTopOf="@id/layout_album">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_0_dp"
+            android:layout_height="@dimen/dimen_0_dp"
+            android:alpha="0.2"
+            android:contentDescription="@null"
+            android:elevation="@dimen/dimen_20_dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/bc_flower"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_edit_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/tv_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18_sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="@id/btn_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_edit"
+            app:layout_constraintTop_toTopOf="@id/btn_edit" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_album"
+        android:layout_width="@dimen/dimen_0_dp"
+        android:layout_height="@dimen/dimen_80_dp"
+        android:layout_marginStart="@dimen/dimen_10_dp"
+        android:layout_marginTop="@dimen/dimen_50_dp"
+        android:layout_marginEnd="@dimen/dimen_20_dp"
+        android:background="@drawable/bc_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/layout_edit"
+        app:layout_constraintTop_toBottomOf="@id/img_main">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_0_dp"
+            android:layout_height="@dimen/dimen_0_dp"
+            android:alpha="0.2"
+            android:contentDescription="@null"
+            android:elevation="@dimen/dimen_20_dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/bc_album"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_album"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_album"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/tv_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/album"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18_sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="@id/btn_album"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_album"
+            app:layout_constraintTop_toTopOf="@id/btn_album" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

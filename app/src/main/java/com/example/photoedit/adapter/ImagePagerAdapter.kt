@@ -1,6 +1,7 @@
 package com.example.photoedit.adapter
 
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +14,10 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.photoedit.databinding.ItemAlbumImageBinding
+import com.example.photoedit.utils.getPathFromUri
 
-class ImagePagerAdapter :
-    ListAdapter<String, ImagePagerAdapter.ImageViewHolder>(ImageDiffCallback()) {
+class ImagePagerAdapter(   private val onClick: (String) -> Unit) :
+    ListAdapter<Uri, ImagePagerAdapter.ImageViewHolder>(ImageDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val binding =
@@ -51,18 +53,21 @@ class ImagePagerAdapter :
 
             }).into(holder.binding.imageView)
 
+        holder.binding.imageView.setOnClickListener {
+            getPathFromUri(holder.itemView.context,imagePath)?.let { it1 -> onClick.invoke(it1) }
+        }
+
     }
 
     inner class ImageViewHolder(val binding: ItemAlbumImageBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    class ImageDiffCallback : DiffUtil.ItemCallback<String>() {
-        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-            return oldItem == newItem
-        }
+    class ImageDiffCallback : DiffUtil.ItemCallback<Uri>() {
 
-        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-            return oldItem == newItem
-        }
+        override fun areItemsTheSame(oldItem: Uri, newItem: Uri): Boolean {
+            return oldItem == newItem        }
+
+        override fun areContentsTheSame(oldItem: Uri, newItem: Uri): Boolean {
+            return oldItem == newItem        }
     }
 }

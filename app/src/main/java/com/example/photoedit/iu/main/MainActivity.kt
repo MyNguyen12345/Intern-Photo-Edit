@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         sharedPreferencesUtils = SharedPreferencesUtils(this)
@@ -46,14 +48,17 @@ class MainActivity : AppCompatActivity() {
         checkPermission()
         checkMultiplePermission()
 
-        binding.btnEdit.setOnClickListener {
+        binding.layoutEdit.setOnClickListener {
             intentActivity(this, TakePhotoActivity::class.java)
         }
 
-        binding.btnAlbum.setOnClickListener {
+        binding.layoutAlbum.setOnClickListener {
 
             intentActivity(this, AlbumActivity::class.java)
         }
+
+
+
 
 
 
@@ -62,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.cancel_app_dialog),
                 this@MainActivity,
                 null
-            ) { finish() }
+            ) { finishAffinity() }
 
 
         }

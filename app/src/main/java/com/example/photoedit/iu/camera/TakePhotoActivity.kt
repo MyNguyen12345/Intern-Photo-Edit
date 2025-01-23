@@ -108,20 +108,28 @@ class TakePhotoActivity : AppCompatActivity() {
 
 
         binding.imgPhoto.setOnClickListener {
+            binding.recyclerFilter.visibility = View.INVISIBLE
+
             takePhoto()
 
         }
 
         binding.imgFlash.setOnClickListener {
+            binding.recyclerFilter.visibility = View.INVISIBLE
+
             setFlashIcon(camera)
 
         }
         binding.cardImage.setOnClickListener {
+            binding.recyclerFilter.visibility = View.INVISIBLE
+
             intentActivity(this, AlbumActivity::class.java)
 
         }
 
         binding.imgHome.setOnClickListener {
+            binding.recyclerFilter.visibility = View.INVISIBLE
+
             finish()
         }
 
@@ -136,11 +144,6 @@ class TakePhotoActivity : AppCompatActivity() {
 
 
         }
-        binding.cardImage.setOnClickListener {
-            intentActivity(this, AlbumActivity::class.java)
-        }
-
-
     }
 
 
@@ -204,12 +207,6 @@ class TakePhotoActivity : AppCompatActivity() {
                             imagePathSave = filteredImageFile.absolutePath
                             deleteImageFromInternalStorage(imageFile.absolutePath)
                             filter = null
-
-                            Toast.makeText(
-                                this@TakePhotoActivity,
-                                "Filtered image saved: ${filteredImageFile.absolutePath}",
-                                Toast.LENGTH_LONG
-                            ).show()
                         } catch (e: Exception) {
                             e.printStackTrace()
                             Toast.makeText(
@@ -218,9 +215,11 @@ class TakePhotoActivity : AppCompatActivity() {
                                 Toast.LENGTH_LONG
                             ).show()
                         }
+
                     } else {
                         imagePathSave = imageFile.absolutePath
                     }
+
                     val intent =
                         Intent(this@TakePhotoActivity, HomeEditImageActivity::class.java).apply {
                             putExtra(Constants.KEY_IMAGE_PATH, imagePathSave)
@@ -251,7 +250,8 @@ class TakePhotoActivity : AppCompatActivity() {
     }
 
     private fun bindCameraUserCases() {
-        val rotation = binding.previewImage.display.rotation
+
+        val rotation = binding.previewImage.display?.rotation ?: Surface.ROTATION_0
 
         val resolutionSelector = ResolutionSelector.Builder()
             .setAspectRatioStrategy(
@@ -267,10 +267,9 @@ class TakePhotoActivity : AppCompatActivity() {
             .setTargetRotation(rotation)
             .build()
             .also {
-
-                it.surfaceProvider =
-                    if (filter != null) null else binding.previewImage.surfaceProvider
+                it.surfaceProvider = binding.previewImage.surfaceProvider
             }
+
 
         val imageAnalyzer = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -278,20 +277,23 @@ class TakePhotoActivity : AppCompatActivity() {
             .build()
             .also {
                 it.setAnalyzer(ContextCompat.getMainExecutor(this)) { imageProxy ->
-                    val bitmap = imageProxy.toBitmap()
-                    val rotatedBitmap = bitmap.rotateImage(imageProxy.imageInfo.rotationDegrees)
+                    try {
+                        val bitmap = imageProxy.toBitmap()
+                        val rotatedBitmap = bitmap.rotateImage(imageProxy.imageInfo.rotationDegrees)
 
-                    if (filter != null) {
-                        binding.gpuimage.visibility = View.VISIBLE
-                        binding.previewImage.visibility = View.INVISIBLE
-                        binding.gpuimage.setImage(rotatedBitmap)
-                        binding.gpuimage.filter = filter
+                        if (filter != null) {
+                            binding.gpuimage.setImage(rotatedBitmap)
+                            binding.gpuimage.filter = filter
+                        } else {
+                            binding.gpuimage.setImage(rotatedBitmap)
+                            binding.gpuimage.filter = GPUImageFilter()
 
-                    } else {
-                        binding.gpuimage.visibility = View.INVISIBLE
-                        binding.previewImage.visibility = View.VISIBLE
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    } finally {
+                        imageProxy.close()
                     }
-                    imageProxy.close()
                 }
 
             }
@@ -420,7 +422,6 @@ class TakePhotoActivity : AppCompatActivity() {
         super.onResume()
         orientationEventListener?.enable()
         observer()
-
 
     }
 

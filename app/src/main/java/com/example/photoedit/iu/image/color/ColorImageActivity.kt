@@ -15,6 +15,7 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
@@ -26,6 +27,7 @@ import com.example.photoedit.utils.fixBitmapOrientation
 import com.example.photoedit.utils.saveImage
 import jp.co.cyberagent.android.gpuimage.GPUImage
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageHueFilter
+import java.io.File
 
 class ColorImageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityColorImageBinding
@@ -44,89 +46,117 @@ class ColorImageActivity : AppCompatActivity() {
         imagePath = intent.getStringExtra(Constants.KEY_IMAGE_PATH)
         backgroundImage = intent?.getStringExtra(Constants.KEY_IMAGE_BACKGROUND)
 
+        val file = imagePath?.let { File(it) }
 
-        Glide.with(this)
-            .load(imagePath)
-            .into(binding.viewImage)
+        if (file != null) {
+            if (!file.exists()) {
+                Toast.makeText(this, "Image Delete", Toast.LENGTH_SHORT).show()
+                finish()
+            } else {
 
-        binding.btnBack.setOnClickListener {
-            dialogFinished(getString(R.string.cancel_changes_dialog), this, null) { finish() }
+
+                Glide.with(this)
+                    .load(imagePath)
+                    .into(binding.viewImage)
+
+                binding.btnBack.setOnClickListener {
+                    dialogFinished(
+                        getString(R.string.cancel_changes_dialog),
+                        this,
+                        null
+                    ) { finish() }
+                }
+
+                onBackPressedDispatcher.addCallback {
+                    binding.btnBack.performClick()
+                }
+                binding.btnSave.setOnClickListener {
+                    imagePath =
+                        bitmapSave?.let { it1 ->
+                            imagePath?.let { it2 ->
+                                saveImage(
+                                    this,
+                                    it1,
+                                    it2
+                                )
+                            }
+                        }
+                    val returnIntent = Intent()
+                    returnIntent.putExtra(Constants.KEY_IMAGE_PATH, imagePath)
+                    returnIntent.putExtra(Constants.KEY_IMAGE_BACKGROUND, backgroundImage)
+
+                    setResult(Activity.RESULT_OK, returnIntent)
+                    finish()
+
+
+                }
+
+                binding.seekBarBrightness.progress = 100
+                binding.seekBarBlur.progress = 0
+                binding.seekBarColor.max = 360
+                binding.seekBarBrightness.max = 100
+                binding.seekBarBlur.max = 100
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    binding.seekBarColor.min = 0
+                    binding.seekBarBrightness.min = 0
+                    binding.seekBarBlur.min = 0
+                }
+                val originalBitmap = BitmapFactory.decodeFile(imagePath)
+                bitmap = imagePath?.let { fixBitmapOrientation(originalBitmap, it) }
+                gpuImage = GPUImage(this)
+                gpuImage.setImage(bitmap)
+
+                binding.seekBarColor.setOnSeekBarChangeListener(object :
+                    SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+
+
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        applyFilters()
+
+                    }
+                })
+
+                binding.seekBarBlur.setOnSeekBarChangeListener(object :
+                    SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+
+                    }
+
+                    override fun onStartTrackingTouch(p0: SeekBar?) {
+
+                    }
+
+                    override fun onStopTrackingTouch(p0: SeekBar?) {
+                        applyFilters()
+
+                    }
+
+                })
+
+                binding.seekBarBrightness.setOnSeekBarChangeListener(object :
+                    SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+
+                    }
+
+                    override fun onStartTrackingTouch(p0: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(p0: SeekBar?) {
+                        applyFilters()
+                    }
+
+                })
+            }
         }
-
-        onBackPressedDispatcher.addCallback {
-            binding.btnBack.performClick()
-        }
-        binding.btnSave.setOnClickListener {
-            imagePath =
-                bitmapSave?.let { it1 -> imagePath?.let { it2 -> saveImage(this, it1, it2) } }
-            val returnIntent = Intent()
-            returnIntent.putExtra(Constants.KEY_IMAGE_PATH, imagePath)
-            returnIntent.putExtra(Constants.KEY_IMAGE_BACKGROUND, backgroundImage)
-
-            setResult(Activity.RESULT_OK, returnIntent)
-            finish()
-
-
-        }
-
-        binding.seekBarBrightness.progress = 100
-        binding.seekBarBlur.progress = 0
-        binding.seekBarColor.max = 360
-        binding.seekBarBrightness.max = 100
-        binding.seekBarBlur.max = 100
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            binding.seekBarColor.min = 0
-            binding.seekBarBrightness.min = 0
-            binding.seekBarBlur.min = 0
-        }
-        val originalBitmap = BitmapFactory.decodeFile(imagePath)
-        bitmap = imagePath?.let { fixBitmapOrientation(originalBitmap, it) }
-        gpuImage = GPUImage(this)
-        gpuImage.setImage(bitmap)
-
-        binding.seekBarColor.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-
-
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                applyFilters()
-
-            }
-        })
-
-        binding.seekBarBlur.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                applyFilters()
-
-            }
-
-        })
-
-        binding.seekBarBrightness.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                applyFilters()
-            }
-
-        })
     }
 
     private fun applyFilters() {
